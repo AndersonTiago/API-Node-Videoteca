@@ -34,5 +34,48 @@ module.exports = {
         }catch(err){
             response.status(400).json({error: err.message});
         }
+    },
+
+    async update(request, response) {
+        const {title, link} = request.body
+
+        if(!title && !link) {
+            return response
+                .status(400)
+                .json({error: "You must a new title or a new link"})
+        }
+
+        if(title) response.video.title = title;
+        if(link) response.video.link = link;
+
+        try{
+            await response.video.save();
+            return response.status(200).json({message: "Video updated successfully"})
+        }catch(err){
+            response.status(500).json({error: err.message});
+        }
+    },
+
+    async delete(request, response) {
+        try{
+            await response.video.remove();
+            return response.status(200).json({message: "Vídeo deleted successfully"})
+        }catch(err){
+            return response.status(500).json({error: err.message})
+        }
+    },
+
+    async updateLike(request, response){
+        response.video.liked = !response.video.liked;
+
+        try {
+            await response.video.save()
+
+            return response.status(200).json({
+                message: `Video ${response.video.liked ? "liked" : "unliked"} successfully`
+            })
+        }catch(err){    
+            response.status(400).json({error: err.message})
+        }
     }
 }
